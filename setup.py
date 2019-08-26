@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='terminal_utils',
-    version='0.9',
+    version='0.9.1',
     url='https://github.com/vphpersson/terminal_utils',
     author='vph',
     classifiers=[
