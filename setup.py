@@ -11,6 +11,6 @@ setup(
         'Topic :: Software Development :: User Interfaces',
         'Programming Language :: Python :: 3.7',
     ],
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=['terminal_utils'],
     python_requires='>=3.7'
 )
