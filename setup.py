@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='terminal_utils',
-    version='0.9.1.3',
+    version='0.9.1.4',
     url='https://github.com/vphpersson/terminal_utils',
     author='vph',
     classifiers=[
@@ -11,6 +11,7 @@ setup(
         'Topic :: Software Development :: User Interfaces',
         'Programming Language :: Python :: 3.7',
     ],
+    packages=['terminal_utils'],
     py_modules=['ColoredOutput', 'Progressor'],
     python_requires='>=3.7'
 )
