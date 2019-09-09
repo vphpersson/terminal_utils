@@ -3,28 +3,28 @@ from enum import IntEnum
 
 
 class PrintColor(IntEnum):
+    DEFAULT_FOREGROUND_COLOR = 39
+    BLACK = 30
+    RED = 31
     GREEN = 32
     YELLOW = 33
-    RED = 91
+    BLUE = 34
+    MAGENTA = 35
+    CYAN = 36
+    LIGHT_GRAY = 37
+    DARK_GRAY = 90
+    LIGHT_RED = 91
+    LIGHT_GREEN = 92
+    LIGHT_YELLOW = 93
+    LIGHT_BLUE = 94
+    LIGHT_MAGENTA = 95
+    LIGHT_CYAN = 96
+    WHITE = 97
 
 
 class ColoredOutput:
     def __init__(self):
         self.enabled = True
 
-        self._yellow_color_wrapper = ColoredOutput.get_color_wrapper(PrintColor.YELLOW)
-        self._green_color_wrapper = ColoredOutput.get_color_wrapper(PrintColor.GREEN)
-        self._red_color_wrapper = ColoredOutput.get_color_wrapper(PrintColor.RED)
-
-    def print_yellow(self, message: str) -> str:
-        return self._yellow_color_wrapper(message) if self.enabled else message
-
-    def print_green(self, message: str) -> str:
-        return self._green_color_wrapper(message) if self.enabled else message
-
-    def print_red(self, message: str) -> str:
-        return self._red_color_wrapper(message) if self.enabled else message
-
-    @staticmethod
-    def get_color_wrapper(color_code: int):
-        return lambda s: f'\x1b[{color_code}m{s}\033[0m'
+    def make_color_output(self, print_color: PrintColor, message: str) -> str:
+        return f'\x1b[{print_color.value}m{message}\033[0m' if self.enabled else message

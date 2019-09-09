@@ -1,5 +1,5 @@
 from shutil import get_terminal_size
-from typing import Union, IO, Optional
+from typing import IO, Optional
 from sys import stderr, stdout
 
 
