@@ -1,17 +1,7 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='terminal_utils',
-    version='0.9.1.4',
-    url='https://github.com/vphpersson/terminal_utils',
-    author='vph',
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development :: User Interfaces',
-        'Programming Language :: Python :: 3.7',
-    ],
-    packages=['terminal_utils'],
-    py_modules=['ColoredOutput', 'Progressor'],
-    python_requires='>=3.7'
+    version='0.95',
+    packages=find_packages()
 )
