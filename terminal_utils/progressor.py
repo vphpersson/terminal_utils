@@ -1,4 +1,6 @@
 from __future__ import annotations
+from dataclasses import dataclass
+from logging import Handler, NOTSET, LogRecord
 from shutil import get_terminal_size
 from typing import IO, Optional
 from sys import stderr, stdout
@@ -63,3 +65,27 @@ class Progressor:
         bar = f'{self.fill_character * filled_length}{"-" * (bar_length - filled_length)}'
 
         self.print_progress_message(gen_msg(bar))
+
+
+@dataclass
+class ProgressStatus:
+    iteration: int
+    total: int
+    prefix: Optional[str] = ''
+
+
+class ProgressorLogHandler(Handler):
+
+    def __init__(self, progressor: Progressor, level: int = NOTSET):
+        super().__init__(level=level)
+        self._progressor: Progressor = progressor
+
+    def emit(self, record: LogRecord) -> None:
+        if not isinstance(record.msg, ProgressStatus):
+            raise ValueError(f'The log message is not of the progress status type.')
+
+        self._progressor.print_progress(
+            iteration=record.msg.iteration,
+            total=record.msg.total,
+            prefix=record.msg.prefix
+        )
