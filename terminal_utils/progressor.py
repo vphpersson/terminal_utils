@@ -2,8 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from logging import Handler, NOTSET, LogRecord
 from shutil import get_terminal_size
-from typing import IO, Optional
-from sys import stderr, stdout
+from typing import Optional
+from sys import stderr
 
 
 class Progressor:
@@ -17,19 +17,18 @@ class Progressor:
     def __exit__(self, _, __, ___):
         self.print_progress_message('')
 
-    def print_message(self, message: str, end: Optional[str] = '\n', file: Optional[IO] = stdout) -> None:
+    def print_message(self, message: str, **print_options) -> None:
         """
         Print a message in the context of the progress, making a new line.
 
         :param message: The message to print.
-        :param end:
-        :param file: The
+        :param print_options: Options passed to `print`.
         :return: None
         """
 
         message_len = len(message)
 
-        print(f'\r{message}{" " * max(0, self._last_message_length - message_len)}', end=end, file=file)
+        print(f'\r{message}{" " * max(0, self._last_message_length - message_len)}', **print_options)
 
         self._last_message_length = message_len
 
