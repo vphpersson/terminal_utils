@@ -60,11 +60,11 @@ class Progressor:
         # use the difference between the length of the message and the width of the terminal.
         bar_length = get_terminal_size().columns - len(make_progress_message(bar=''))
         # Ascertain how much of the bar is to be filled up with the fill character.
-        filled_length = int((iteration / total) * bar_length)
+        num_fill_characters = int((iteration / total) * bar_length)
 
         Progressor.print_progress_message(
             message=make_progress_message(
-                bar=f'{self.fill_character * filled_length}{"-" * (bar_length - filled_length)}'
+                bar=f'{num_fill_characters * self.fill_character}{"-" * (bar_length - num_fill_characters)}'
             )
         )
 
