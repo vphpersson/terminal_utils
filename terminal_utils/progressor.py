@@ -8,8 +8,7 @@ from sys import stderr
 
 class Progressor:
     def __init__(self, fill_character: str = '█'):
-        self.fill_character = fill_character
-        self._last_message_length = 0
+        self.fill_character: str = fill_character
 
     def __enter__(self) -> Progressor:
         return self
@@ -17,7 +16,8 @@ class Progressor:
     def __exit__(self, _, __, ___):
         self.print_progress_message('')
 
-    def print_message(self, message: str, **print_options) -> None:
+    @staticmethod
+    def print_message(message: str, **print_options) -> None:
         """
         Print a message in the context of the progress, making a new line.
 
@@ -26,13 +26,11 @@ class Progressor:
         :return: None
         """
 
-        message_len = len(message)
+        # The characters of the previous message are removed by writing whitespace for the full width of the terminal.
+        print(f'{" " * get_terminal_size().columns}\r{message}', **print_options)
 
-        print(f'\r{message}{" " * max(0, self._last_message_length - message_len)}', **print_options)
-
-        self._last_message_length = message_len
-
-    def print_progress_message(self, message: str, prefix: str = '') -> None:
+    @staticmethod
+    def print_progress_message(message: str, prefix: str = '') -> None:
         """
         Print a message in the context of the progress, replacing the current progress line.
 
@@ -41,7 +39,7 @@ class Progressor:
         :return: None
         """
 
-        self.print_message(f'{prefix}{message}', end='\r', file=stderr)
+        Progressor.print_message(f'{prefix}{message}', end='\r', file=stderr)
 
     def print_progress(self, iteration: int, total: int, prefix: str = '') -> None:
         """
@@ -55,15 +53,20 @@ class Progressor:
 
         percent = f'{100 * (iteration / float(total)): 5.1f}'
 
-        def gen_msg(bar: str = '') -> str:
+        def make_progress_message(bar: str) -> str:
             return f'{prefix}[{iteration:0{len(str(total))}}/{total}] |{bar}| {percent}%'
 
-        bar_length = get_terminal_size().columns - len(gen_msg())
-
+        # The bar is to fill up the terminal width. Ascertain the length by producing a message with an empty bar, and
+        # use the difference between the length of the message and the width of the terminal.
+        bar_length = get_terminal_size().columns - len(make_progress_message(bar=''))
+        # Ascertain how much of the bar is to be filled up with the fill character.
         filled_length = int((iteration / total) * bar_length)
-        bar = f'{self.fill_character * filled_length}{"-" * (bar_length - filled_length)}'
 
-        self.print_progress_message(gen_msg(bar))
+        Progressor.print_progress_message(
+            message=make_progress_message(
+                bar=f'{self.fill_character * filled_length}{"-" * (bar_length - filled_length)}'
+            )
+        )
 
 
 @dataclass
