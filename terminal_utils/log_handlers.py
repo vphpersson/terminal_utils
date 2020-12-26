@@ -1,6 +1,7 @@
 from logging import Handler, CRITICAL, ERROR, WARNING, INFO, DEBUG, LogRecord
 from typing import Optional
 from dataclasses import dataclass
+from sys import stderr
 
 from terminal_utils.progressor import Progressor
 from terminal_utils.colored_output import ColoredOutput, PrintColor
@@ -36,7 +37,52 @@ class ProgressorLogHandler(Handler):
         )
 
 
-class ColoredProgressorLogHandler(ProgressorLogHandler):
+class ColoredLogHandler(Handler):
+    def __init__(self, **handler_options):
+        super().__init__(**handler_options)
+        self._colored_output = ColoredOutput()
+
+    def emit(self, record: LogRecord) -> None:
+        """
+        Output a log record message in color depending the record's severity.
+
+        The mapping between log severity and color is:
+            `CRITICAL`, `ERROR`: red
+            `WARNING`: yellow
+            `INFO`: green
+            `DEBUG`: white
+
+        :param record: The log record to be output.
+        :return: None
+        """
+
+        formatted_message: str = self.format(record=record)
+
+        if record.levelno in {CRITICAL, ERROR}:
+            print(
+                self._colored_output.make_color_output(print_color=PrintColor.RED, message=formatted_message),
+                file=stderr
+            )
+        elif record.levelno == WARNING:
+            print(
+                self._colored_output.make_color_output(print_color=PrintColor.YELLOW, message=formatted_message),
+                file=stderr
+            )
+        elif record.levelno == INFO:
+            print(
+                self._colored_output.make_color_output(print_color=PrintColor.GREEN, message=formatted_message),
+                file=stderr
+            )
+        elif record.levelno == DEBUG:
+            print(
+                self._colored_output.make_color_output(print_color=PrintColor.WHITE, message=formatted_message),
+                file=stderr
+            )
+        else:
+            raise ValueError(f'Unknown log level: levelno={record.levelno}')
+
+
+class ColoredProgressorLogHandler(ProgressorLogHandler, ColoredLogHandler):
     """A log handler that outputs log records of different severity in different colors, or outputs a progress bar."""
 
     def __init__(self, progressor: Progressor, print_warnings: bool = True, **handler_options):
