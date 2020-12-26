@@ -1,8 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from logging import Handler, NOTSET, LogRecord
 from shutil import get_terminal_size
-from typing import Optional
 from sys import stderr
 
 
@@ -59,7 +56,7 @@ class Progressor:
         # The bar is to fill up the terminal width. Ascertain the length by producing a message with an empty bar, and
         # use the difference between the length of the message and the width of the terminal.
         bar_length = get_terminal_size().columns - len(make_progress_message(bar=''))
-        # Ascertain how much of the bar is to be filled up with the fill character.
+        # Ascertain how much of the bar is to be filled with the fill character.
         num_fill_characters = int((iteration / total) * bar_length)
 
         Progressor.print_progress_message(
@@ -69,25 +66,3 @@ class Progressor:
         )
 
 
-@dataclass
-class ProgressStatus:
-    iteration: int
-    total: int
-    prefix: Optional[str] = ''
-
-
-class ProgressorLogHandler(Handler):
-
-    def __init__(self, progressor: Progressor, level: int = NOTSET):
-        super().__init__(level=level)
-        self._progressor: Progressor = progressor
-
-    def emit(self, record: LogRecord) -> None:
-        if not isinstance(record.msg, ProgressStatus):
-            raise ValueError(f'The log message is not of the progress status type.')
-
-        self._progressor.print_progress(
-            iteration=record.msg.iteration,
-            total=record.msg.total,
-            prefix=record.msg.prefix
-        )
