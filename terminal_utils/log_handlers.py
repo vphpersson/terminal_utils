@@ -14,6 +14,12 @@ class ProgressStatus:
 
 
 class ProgressorLogHandler(Handler):
+    """
+    A log handler that outputs a progress bar.
+
+    The log handler handles the special `LogRecord` of the type `ProgressStatus`, which specifies information about
+    progression status and the appearance of the progress bar.
+    """
 
     def __init__(self, progressor: Progressor, **handler_options):
         super().__init__(**handler_options)
@@ -31,12 +37,39 @@ class ProgressorLogHandler(Handler):
 
 
 class ColoredProgressorLogHandler(ProgressorLogHandler):
+    """A log handler that outputs log records of different severity in different colors, or outputs a progress bar."""
 
-    def __init__(self, progressor: Progressor, **handler_options):
+    def __init__(self, progressor: Progressor, print_warnings: bool = True, **handler_options):
+        """
+        Instantiate a `ColoredProgressorLogHandler``.
+
+        Regarding `print_warnings`: if one wants to not print log messages having the `WARNING` severity but still see
+        the progress bar, it does not work to set the log level of the handler to `ERROR`, as the progress bar is output
+        via log messages having the `DEBUG` severity. Thus, there must be an extra option for this scenario.
+
+        :param progressor: The progressor with which to output the log messages.
+        :param print_warnings: Whether to not print log messages having the `WARNING` severity.
+        :param handler_options: Options passed to the `argparse.Handler` superclass.
+        """
+
         super().__init__(progressor=progressor, **handler_options)
         self._colored_output = ColoredOutput()
+        self.print_warnings = print_warnings
 
-    def emit(self, record: LogRecord):
+    def emit(self, record: LogRecord) -> None:
+        """
+        Forward a log record to the `ProgressorLogHandler` superclass or output the record a colored message.
+
+        The mapping between log severity and color is:
+            `CRITICAL`, `ERROR`: red
+            `WARNING`: yellow
+            `INFO`: green
+            `DEBUG`: white
+
+        :param record: The log record to be output.
+        :return: None
+        """
+
         if isinstance(record.msg, ProgressStatus):
             super().emit(record=record)
             return
@@ -48,9 +81,10 @@ class ColoredProgressorLogHandler(ProgressorLogHandler):
                 message=self._colored_output.make_color_output(print_color=PrintColor.RED, message=formatted_message)
             )
         elif record.levelno == WARNING:
-            self._progressor.print_message(
-                message=self._colored_output.make_color_output(print_color=PrintColor.YELLOW, message=formatted_message)
-            )
+            if self.print_warnings:
+                self._progressor.print_message(
+                    message=self._colored_output.make_color_output(print_color=PrintColor.YELLOW, message=formatted_message)
+                )
         elif record.levelno == INFO:
             self._progressor.print_message(
                 message=self._colored_output.make_color_output(print_color=PrintColor.GREEN, message=formatted_message)
